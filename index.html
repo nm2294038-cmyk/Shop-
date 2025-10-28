@@ -1,6 +1,5 @@
-<!-- index.html -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="<$BlogLanguageDirection$>">
+<!DOCTYPE html >
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="<$BlogLanguageDirection$">
 <head>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3071493838743593"
      crossorigin="anonymous"></script>
@@ -11,7 +10,7 @@
   <!-- Font Awesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4C+J9yY6P+j2g2L/LhT0PzYfR4k1S3r0e1/6w+v/g5fS3A6B4XfF7x0y8u+x/S0P5b0z4w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-  <!-- Link to external CSS -->
+  <!-- Link to external CSS (Assuming your attractive style.css is linked here) -->
   <link rel="stylesheet" href="style.css">
 
   <title>E-commerce Store</title>
@@ -75,7 +74,7 @@
                     <button class="checkout-btn" id="proceed-to-checkout-btn" disabled>Proceed to Checkout</button>
                 </div>
             </section>
-
+  
             <!-- NEW FEATURED SLIDER SECTION (REPLACES OLD PROMO BANNER) -->
             <section class="featured-slider-section" id="featured-slider-section">
                 <div class="section-header">
@@ -111,8 +110,9 @@
                 <div class="product-scroll-container" id="lightning-deals-container"><p style="text-align:center; color: #bbb; width: 100%;" id="no-lightning-deals">No lightning deals.</p></div>
             </section>
             <section class="temu-tcs-banner">
-                <div></div><span>Any Problem Contact Whtasapp Ghulam Mustafa 03435641151</span><i class="fas fa-chevron-left"></i>
+                <div></div><span>Any Problem Contact Whtasapp Nazim Mustafa 03435641151</span><i class="fas fa-chevron-left"></i>
             </section>
+          
             <nav class="main-categories-nav" id="main-categories-nav-container"></nav>
             <section class="product-grid" id="products-container">
                 <p style="text-align: center; grid-column: 1 / -1; margin-top: 50px; color: #bbb;" id="loading-message">Loading products...</p>
@@ -938,7 +938,7 @@ Australia: 3:00 AM – 5:00 AM (next day)</li>
             <h3>6. Forfeiture, Abuse, and System Integrity</h3>
             <ul>
                 <li>Any attempt to abuse the bonus system, including but not limited to, creating multiple accounts to illicitly claim bonuses, attempting to manipulate transactions to convert Bonus Funds into Depositable or Withdrawable Funds, or any other fraudulent activity, will result in the immediate forfeiture of all Bonus Funds.</li>
-                <li>Such actions may also lead to the suspension or permanent termination of your account(s) and, in ممکن cases of fraud, potential forfeiture of Deposited Funds and legal action.</li>
+                <li>Such actions may also lead to the suspension or permanent termination of your account(s) and, in T ممکن cases of fraud, potential forfeiture of Deposited Funds and legal action.</li>
                 <li>E-commerce Store reserves the right to audit account activities and reclaim any Bonus Funds that were credited or used in error or in violation of these terms.</li>
             </ul>
 
@@ -964,9 +964,119 @@ Australia: 3:00 AM – 5:00 AM (next day)</li>
   </div> <!-- End .blogger-app-container -->
 
 
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        
+    </div>
   <!-- Link to external JavaScript -->
   <!-- CORRECTED SCRIPT TAG FOR MODULE LOADING -->
   <script type="module" src="script.js"></script>
+
+  <!-- NEW JAVASCRIPT FOR AUTO-SLIDING FEATURED PRODUCTS -->
+    <script>
+        // Featured Slider Auto-Move Logic (Left to Right)
+        (function() {
+            const container = document.getElementById('featured-slider-container');
+            const prevButton = document.getElementById('featured-slider-prev');
+            const nextButton = document.getElementById('featured-slider-next');
+
+            if (!container || !prevButton || !nextButton) return;
+
+            const viewport = container.parentElement;
+            let slideInterval;
+            const slideDuration = 3500; // 3.5 seconds
+            let currentScrollPosition = 0;
+            let isPaused = false;
+
+            const getSlideBlockWidth = () => {
+                const slides = container.querySelectorAll('.featured-slide');
+                if (slides.length === 0) return 0;
+                // Get the actual width of the first slide
+                const slideWidth = slides[0].offsetWidth;
+                // Get the computed gap (from CSS 'gap' property, default to 15px if not found)
+                const gap = parseFloat(window.getComputedStyle(container).gap) || 15;
+                return slideWidth + gap;
+            };
+
+            const updateButtonState = (maxScrollLeft) => {
+                // Logic to update the prev/next buttons based on currentScrollPosition
+                // (This is often handled in the main script.js for manual slides, 
+                // but we add it here for completeness if manual logic is missing/simple)
+                prevButton.disabled = currentScrollPosition <= 0;
+                nextButton.disabled = currentScrollPosition >= maxScrollLeft;
+            };
+
+            const moveToNext = () => {
+                const slides = container.querySelectorAll('.featured-slide');
+                if (slides.length === 0) return;
+                
+                const blockWidth = getSlideBlockWidth();
+                
+                // Use scrollWidth, offsetWidth, and clientWidth for accurate boundary calculation
+                // The container's effective width (all slides + gaps)
+                const containerTotalWidth = container.scrollWidth;
+                // The viewport width
+                const viewportWidth = viewport.offsetWidth; 
+
+                // Max scroll position before showing empty space on the right
+                const maxScrollLeft = containerTotalWidth - viewportWidth;
+
+                let nextPosition = currentScrollPosition + blockWidth;
+
+                if (nextPosition >= maxScrollLeft) {
+                    // Loop back to start (0)
+                    nextPosition = 0;
+                } else if (nextPosition > maxScrollLeft - blockWidth) {
+                    // If the next move would go slightly over the end, stop exactly at the end
+                    nextPosition = maxScrollLeft;
+                }
+                
+                // Ensure we don't go negative
+                currentScrollPosition = Math.max(0, nextPosition);
+                
+                container.style.transform = `translateX(-${currentScrollPosition}px)`;
+                // Optional: Force a brief re-enable for a split second to reset any disabled state
+                prevButton.disabled = false;
+                nextButton.disabled = false;
+                // Update buttons state after move
+                updateButtonState(maxScrollLeft);
+            };
+
+            const startSliding = () => {
+                if (isPaused) return;
+                clearInterval(slideInterval);
+                slideInterval = setInterval(moveToNext, slideDuration);
+            };
+
+            const pauseSliding = () => {
+                clearInterval(slideInterval);
+            };
+            
+            // --- Initialization and Event Listeners ---
+            // 1. Start the carousel immediately
+            startSliding();
+
+            // 2. Add pause/resume on hover/touch for better UX
+            viewport.addEventListener('mouseenter', pauseSliding);
+            viewport.addEventListener('mouseleave', startSliding);
+            viewport.addEventListener('touchstart', () => { pauseSliding(); isPaused = true; }, {passive: true});
+            viewport.addEventListener('touchend', () => { isPaused = false; startSliding(); });
+
+            // 3. Prevent auto-slide from interfering with manual buttons (pause on click)
+            prevButton.addEventListener('click', () => { pauseSliding(); isPaused = true; });
+            nextButton.addEventListener('click', () => { pauseSliding(); isPaused = true; });
+
+            // 4. Initial state check (for when JS loads later than content)
+            setTimeout(() => {
+                const slides = container.querySelectorAll('.featured-slide');
+                const containerTotalWidth = container.scrollWidth;
+                const viewportWidth = viewport.offsetWidth;
+                updateButtonState(containerTotalWidth - viewportWidth);
+            }, 500); // Wait for slides to load
+
+        })();
+    </script>
 
 </body>
 </html>
